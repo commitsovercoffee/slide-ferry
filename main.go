@@ -1,36 +1,51 @@
 package main
 
 import (
-	"fmt"
-	"io"
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
+	"github.com/commitsovercoffee/slide-ferry/handlers"
 )
 
 func main() {
 
-	// http handlers ~ handles request for specified path. ----------------
+	l := log.New(os.Stdout, "product-api ", log.LstdFlags)
 
-	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
+	hh := handlers.NewHello(l)
+	bh := handlers.NewBye(l)
 
-		data, err := io.ReadAll(r.Body)
+	sm := http.NewServeMux()
+	sm.Handle("/", hh)
+	sm.Handle("/bye", bh)
+
+	s := &http.Server{
+		Addr:         ":9090",
+		Handler:      sm,
+		IdleTimeout:  120 * time.Second,
+		ReadTimeout:  1 * time.Second,
+		WriteTimeout: 1 * time.Second,
+	}
+
+	go func() {
+
+		err := s.ListenAndServe()
 		if err != nil {
-			http.Error(rw, "Something wrong!", http.StatusBadRequest)
-			return
+			l.Fatal(err)
 		}
+	}()
 
-		log.Printf("Received request with data : `%s`", data)
+	sigChan := make(chan os.Signal)
+	signal.Notify(sigChan, os.Interrupt)
+	signal.Notify(sigChan, os.Kill)
 
-		fmt.Fprintf(rw, "Hello %s", data)
-	})
+	sig := <-sigChan
+	l.Println("Received terminate, graceful shutdown", sig)
 
-	http.HandleFunc("/bye", func(rw http.ResponseWriter, r *http.Request) {
-
-		fmt.Fprintf(rw, "See ya!")
-
-	})
-
-	// http server
-	http.ListenAndServe(":9090", nil)
+	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	s.Shutdown(tc)
 
 }

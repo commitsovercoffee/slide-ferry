@@ -1,0 +1,65 @@
+basePath: /
+consumes:
+    - application/json
+definitions:
+    Product:
+        properties:
+            description:
+                type: string
+                x-go-name: Description
+            id:
+                description: The id of the user
+                format: int64
+                minimum: 1
+                type: integer
+                x-go-name: ID
+            name:
+                type: string
+                x-go-name: Name
+            price:
+                format: float
+                type: number
+                x-go-name: Price
+            sku:
+                type: string
+                x-go-name: SKU
+        required:
+            - id
+        type: object
+        x-go-package: _/home/hope/github/slide-ferry/data
+info:
+    description: Documentation for Product API
+    title: Product API
+    version: 0.0.1
+paths:
+    /products:
+        get:
+            description: Returns a list of products
+            operationId: listProducts
+            responses:
+                "200":
+                    $ref: '#/responses/productsResponse'
+            tags:
+                - products
+    /products/{id}:
+        put:
+            description: Returns an updated list of products
+            operationId: UpdateProducts
+            parameters:
+                - description: The id of the product which is updated.
+                  format: int64
+                  in: path
+                  name: id
+                  required: true
+                  type: integer
+                  x-go-name: ID
+            responses:
+                "200":
+                    $ref: '#/responses/productsResponse'
+            tags:
+                - products
+produces:
+    - application/json
+schemes:
+    - http
+swagger: "2.0"

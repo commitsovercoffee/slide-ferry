@@ -10,7 +10,12 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// swagger:model
 type Product struct {
+	// The id of the user
+	//
+	// required: true
+	// min: 1
 	ID          int     `json:"id"`
 	Name        string  `json:"name" validate:"required"`
 	Description string  `json:"description"`
@@ -19,6 +24,14 @@ type Product struct {
 	CreatedOn   string  `json:"-"`
 	UpdatedOn   string  `json:"-"`
 	DeletedOn   string  `json:"-"`
+}
+
+// swagger:parameters UpdateProducts
+type productIDParameterWrapper struct {
+	// The id of the product which is updated.
+	// in: path
+	// required: true
+	ID int `json:"id"`
 }
 
 type Products []*Product

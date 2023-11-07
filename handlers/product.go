@@ -1,3 +1,18 @@
+// Package classification Product API
+//
+// Documentation for Product API
+//
+//	Schemes: http
+//	BasePath: /
+//	Version: 0.0.1
+//
+//	Consumes:
+//	- application/json
+//
+//	Produces:
+//	- application/json
+//
+// swagger:meta
 package handlers
 
 import (
@@ -19,11 +34,20 @@ func NewProducts(l *log.Logger) *Products {
 	return &Products{l}
 }
 
+// swagger:route GET /products products listProducts
+// Returns a list of products
+// responses:
+// 	200:productsResponse
+
+// GetProducts returns the products from the data store.
 func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request) {
 
 	p.l.Println("Handle GET products")
 
+	// fetch products from the datastore
 	lp := data.GetProducts()
+
+	// serialize the list to JSON
 	err := lp.ToJSON(rw)
 	if err != nil {
 		http.Error(rw, "Unable to marshal.", http.StatusInternalServerError)
@@ -41,6 +65,12 @@ func (p *Products) AddProduct(rw http.ResponseWriter, r *http.Request) {
 
 }
 
+// swagger:route PUT /products/{id} products UpdateProducts
+// Returns an updated list of products
+// responses:
+// 	200:productsResponse
+
+// UpdateProducts returns the updated products from the data store.
 func (p Products) UpdateProducts(rw http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
